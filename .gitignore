@@ -1,0 +1,12 @@
+node_modules
+yarn.lock
+/dist
+
+# local env files
+.env
+
+# Log files
+npm-debug.log*
+
+# Editor directories and files
+.vscode
