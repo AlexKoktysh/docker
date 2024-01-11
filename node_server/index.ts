@@ -10,7 +10,7 @@ dotenv.config();
 const { PORT } = process.env;
 
 const app: Express = express();
-const port = PORT ?? 8080;
+const port = PORT ?? 5000;
 
 app.use(urlencoded({ extended: true }));
 app.use(json());
@@ -21,7 +21,7 @@ const start = async () => {
   try {
     await connectDb();
     app.listen(port, () => {
-      console.log(`[server]: Server is running at http://localhost:${port}!!!`);
+      console.log(`[server]: Server is running at http://localhost:${port}`);
     });
   } catch (error: any) {
     console.log("Error connection db", error);

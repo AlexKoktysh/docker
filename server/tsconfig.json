@@ -1,11 +1,3 @@
 {
-  "compilerOptions": {
-    "target": "esnext",
-    "outDir": "dist",
-    "module": "commonjs",
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "strict": true,
-    "skipLibCheck": true,
-  },
+    "extends": "../.nuxt/tsconfig.server.json"
 }
