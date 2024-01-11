@@ -1,0 +1,33 @@
+version: "3"
+
+services:
+    node_server:
+        image: node_server
+        build:
+            context: ./node_server
+        env_file:
+            - .env
+        environment:
+            - PORT=${SERVER_PORT}
+            - DB_USER=${DB_USER}
+            - DB_PASSWORD=${DB_PASSWORD}
+        ports:
+            - "5000:5000"
+        depends_on:
+            - mongo
+    mongo:
+        image: mongo
+        ports:
+            - "27017:27017"
+        env_file:
+            - .env
+        environment:
+            - MONGO_INITDB_ROOT_USERNAME=${DB_USER}
+            - MONGO_INITDB_ROOT_PASSWORD=${DB_PASSWORD}
+    client:
+        image: client
+        build:
+            context: .
+            dockerfile: Dockerfile
+        ports:
+            - "3000:3000"

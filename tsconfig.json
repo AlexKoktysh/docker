@@ -1,11 +1,4 @@
 {
-  "compilerOptions": {
-    "target": "es2016",
-    "outDir": "./dist",
-    "module": "commonjs",
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "strict": true,
-    "skipLibCheck": true
-  }
+    // https://nuxt.com/docs/guide/concepts/typescript
+    "extends": "./.nuxt/tsconfig.json"
 }
