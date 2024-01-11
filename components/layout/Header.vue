@@ -1,0 +1,11 @@
+<template>
+    <UHeader>
+        <template #logo>
+            <Logo class="w-auto h-6" />
+        </template>
+        <template #right>
+            <HeaderLanguageSwitcher />
+            <UColorModeButton />
+        </template>
+    </UHeader>
+</template>

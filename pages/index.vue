@@ -1,3 +1,1 @@
-<template>
-    <div>Home page</div>
-</template>
+<template>{{ $t("Index.title") }}</template>
