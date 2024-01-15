@@ -1,4 +1,5 @@
 <script setup>
+const { locale } = useI18n();
 const colorMode = useColorMode();
 
 const date = ref(new Date());
@@ -26,5 +27,6 @@ const attrs = ref([
         :attributes="attrs"
         expanded
         :is-dark="colorMode.value === 'dark'"
+        :locale="{ id: locale, masks: { weekdays: 'WW' } }"
     />
 </template>

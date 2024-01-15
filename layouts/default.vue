@@ -3,7 +3,7 @@
         <LayoutHeader />
         <div class="flex h-full">
             <LayoutSidebar />
-            <div class="w-full">
+            <div class="w-full overflow-hidden">
                 <slot />
             </div>
         </div>
