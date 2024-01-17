@@ -12,12 +12,24 @@
         "postinstall": "nuxt prepare"
     },
     "devDependencies": {
+        "@nuxtjs/i18n": "^8.0.0",
+        "@samk-dev/nuxt-vcalendar": "^1.0.2",
         "nuxt": "^3.9.0",
+        "nuxt-icon": "^0.6.8",
         "prettier": "3.1.1",
+        "sass": "^1.69.7",
+        "sass-loader": "^13.3.3",
         "vue": "^3.4.5",
         "vue-router": "^4.2.5"
     },
     "dependencies": {
-        "@nuxt/ui": "^2.11.1"
+        "@nuxt/ui": "^2.11.1",
+        "@nuxt/ui-pro": "^0.7.0",
+        "@pinia/nuxt": "^0.5.1",
+        "pinia": "^2.1.7",
+        "vue-draggable-next": "^2.2.1"
+    },
+    "overrides": {
+        "vue": "latest"
     }
 }
