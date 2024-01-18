@@ -2,8 +2,8 @@ import express, { Express } from "express";
 import { json, urlencoded } from "body-parser";
 import dotenv from "dotenv";
 
-import { UsersRouter } from "./src/routes";
-import { connectDb } from "./config/db";
+import { UsersRouter, CardsRouter } from "./src/routes";
+import { AppDataSource } from "./src/data-source";
 
 dotenv.config();
 
@@ -16,16 +16,22 @@ app.use(urlencoded({ extended: true }));
 app.use(json());
 
 app.use("/users", UsersRouter);
+app.use("/cards", CardsRouter);
 
 const start = async () => {
-  try {
-    await connectDb();
-    app.listen(port, () => {
-      console.log(`[server]: Server is running at http://localhost:${port}`);
-    });
-  } catch (error: any) {
-    console.log("Error connection db", error);
-  }
+    try {
+        AppDataSource.initialize()
+            .then(() => {
+                app.listen(port, () => {
+                    console.log(
+                        `[server]: Server is running at http://localhost:${port}`,
+                    );
+                });
+            })
+            .catch((error) => console.log(error));
+    } catch (error: any) {
+        console.log("Error connection db", error);
+    }
 };
 
 start();
