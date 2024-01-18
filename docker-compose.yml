@@ -24,10 +24,12 @@ services:
         environment:
             - MONGO_INITDB_ROOT_USERNAME=${DB_USER}
             - MONGO_INITDB_ROOT_PASSWORD=${DB_PASSWORD}
-    client:
-        image: client
-        build:
-            context: .
-            dockerfile: Dockerfile
-        ports:
-            - "3000:3000"
+            - username=${DB_USER}
+            - password=${DB_PASSWORD}
+    # client:
+    #     image: client
+    #     build:
+    #         context: .
+    #         dockerfile: Dockerfile
+    #     ports:
+    #         - "3000:3000"
