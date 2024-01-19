@@ -1,9 +1,10 @@
-import type { ToDoListItem, ToDoListItems } from "~/types";
+import type { Card, ToDoListItems } from "~/types";
 
 type RootState = {
     items: ToDoListItems;
-    dragElement?: ToDoListItem;
+    dragElement?: Card;
     leavingZone?: string;
+    apiBaseUrl: string;
 };
 
 export const useToDoListStore = defineStore("toDoList", {
@@ -12,47 +13,110 @@ export const useToDoListStore = defineStore("toDoList", {
             items: [
                 {
                     name: "Index.toDo",
-                    items: [
-                        { id: 1, title: "toDo 1" },
-                        { id: 2, title: "toDo 2" },
-                        { id: 3, title: "toDo 3" },
-                    ],
+                    items: [],
                     id: "dropzone1",
+                    satus: "TO_DO",
                 },
                 {
                     name: "Index.inProgress",
-                    items: [
-                        { id: 4, title: "inProgress 1" },
-                        { id: 5, title: "inProgress 2" },
-                        { id: 6, title: "inProgress 3" },
-                    ],
+                    items: [],
                     id: "dropzone2",
+                    status: "IN_PROGRESS",
                 },
                 {
                     name: "Index.inTest",
-                    items: [
-                        { id: 7, title: "inTest 1" },
-                        { id: 8, title: "inTest 2" },
-                        { id: 9, title: "inTest 3" },
-                    ],
+                    items: [],
                     id: "dropzone3",
+                    status: "IN_TEST",
                 },
                 {
                     name: "Index.inCompleted",
-                    items: [
-                        { id: 10, title: "inCompleted 1" },
-                        { id: 11, title: "inCompleted 2" },
-                        { id: 12, title: "inCompleted 3" },
-                    ],
+                    items: [],
                     id: "dropzone4",
+                    status: "IN_COMPLETED",
                 },
             ],
             dragElement: undefined,
             leavingZone: undefined,
+            apiBaseUrl: useRuntimeConfig().public.apiBase,
         }) as RootState,
     actions: {
-        setDragElement(item?: ToDoListItem) {
+        async getCards() {
+            const response: Card[] = await (
+                await fetch(`${this.apiBaseUrl}/cards`)
+            ).json();
+            const toDoCards = response.filter((el) => el.status === "TO_DO");
+            const inProgressCards = response.filter(
+                (el) => el.status === "IN_PROGRESS",
+            );
+            const inTestCards = response.filter(
+                (el) => el.status === "IN_TEST",
+            );
+            const inCompletedCards = response.filter(
+                (el) => el.status === "IN_COMPLETED",
+            );
+            this.items = [
+                {
+                    name: "Index.toDo",
+                    items: toDoCards,
+                    id: "dropzone1",
+                    status: "TO_DO",
+                },
+                {
+                    name: "Index.inProgress",
+                    items: inProgressCards,
+                    id: "dropzone2",
+                    status: "IN_PROGRESS",
+                },
+                {
+                    name: "Index.inTest",
+                    items: inTestCards,
+                    id: "dropzone3",
+                    status: "IN_TEST",
+                },
+                {
+                    name: "Index.inCompleted",
+                    items: inCompletedCards,
+                    id: "dropzone4",
+                    status: "IN_COMPLETED",
+                },
+            ];
+        },
+        async createCard(data: any) {
+            const res = await (
+                await fetch(`${this.apiBaseUrl}/cards`, {
+                    method: "POST",
+                    body: JSON.stringify(data),
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                })
+            ).json();
+            debugger;
+        },
+        async changeCard(data: Card, key: string) {
+            const res: { status: "success" | "error" } = await (
+                await fetch(
+                    `${this.apiBaseUrl}/cards/${this.dragElement?._id}`,
+                    {
+                        method: "PATCH",
+                        body: JSON.stringify(data),
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                    },
+                )
+            ).json();
+            if (res.status === "success") {
+                this.changeListItems(key);
+                this.setDragElement();
+                return;
+            }
+            this.setDragElement();
+        },
+        setDragElement(item?: Card, parentId?: string) {
             this.dragElement = item;
+            this.setLeavingZone(parentId);
         },
         setLeavingZone(id?: string) {
             this.leavingZone = id;
@@ -61,11 +125,11 @@ export const useToDoListStore = defineStore("toDoList", {
             this.items = this.items.map((el) => {
                 let items = el.items;
                 if (el.id === id) {
-                    items = [...el.items, this.dragElement as ToDoListItem];
+                    items = [...el.items, this.dragElement as Card];
                 }
                 if (el.id === this.leavingZone) {
                     items = el.items.filter(
-                        (e) => e.id !== this.dragElement?.id,
+                        (e) => e._id !== this.dragElement?._id,
                     );
                 }
                 return {

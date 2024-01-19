@@ -6,6 +6,7 @@
             :header="$t(el.name)"
             :items="el.items"
             :id="el.id"
+            :status="el.status"
         />
     </div>
 </template>
@@ -14,4 +15,8 @@
 import { useToDoListStore } from "../store/ToDoListStore";
 
 const toDoStore = useToDoListStore();
+
+onMounted(() => {
+    toDoStore.getCards();
+});
 </script>
