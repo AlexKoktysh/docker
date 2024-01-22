@@ -7,7 +7,7 @@
             <UInput v-model="state.description" type="description" />
         </UFormGroup>
         <UFormGroup label="Status" name="status">
-            <UInput v-model="state.status" type="status" />
+            <USelectMenu v-model="state.status" :options="options" />
         </UFormGroup>
         <UButton type="submit"> Submit </UButton>
     </UForm>
@@ -25,6 +25,13 @@ const emit = defineEmits(["close"]);
 
 const toDoStore = useToDoListStore();
 
+const options = [
+    { label: "TO_DO", value: "TO_DO" },
+    { label: "IN_PROGRESS", value: "IN_PROGRESS" },
+    { label: "IN_TEST", value: "IN_TEST" },
+    { label: "IN_COMPLETED", value: "IN_COMPLETED" },
+];
+
 const state = reactive({
     title: "",
     description: "",
@@ -32,7 +39,10 @@ const state = reactive({
 });
 
 const onSubmit = async (event: any) => {
-    toDoStore.createCard(event.data);
+    toDoStore.createCard({
+        ...event.data,
+        status: event.data.status ?? event.data.status.value,
+    });
     emit("close");
 };
 </script>

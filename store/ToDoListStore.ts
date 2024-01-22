@@ -5,6 +5,10 @@ type RootState = {
     dragElement?: Card;
     leavingZone?: string;
     apiBaseUrl: string;
+    toDoCards: Card[];
+    inProgressCards: Card[];
+    inTestCards: Card[];
+    inCompletedCards: Card[];
 };
 
 export const useToDoListStore = defineStore("toDoList", {
@@ -39,48 +43,50 @@ export const useToDoListStore = defineStore("toDoList", {
             dragElement: undefined,
             leavingZone: undefined,
             apiBaseUrl: useRuntimeConfig().public.apiBase,
+            toDoCards: [],
+            inProgressCards: [],
+            inTestCards: [],
+            inCompletedCards: [],
         }) as RootState,
     actions: {
         async getCards() {
             const response: Card[] = await (
                 await fetch(`${this.apiBaseUrl}/cards`)
             ).json();
-            const toDoCards = response.filter((el) => el.status === "TO_DO");
-            const inProgressCards = response.filter(
+            this.toDoCards = response.filter((el) => el.status === "TO_DO");
+            this.inProgressCards = response.filter(
                 (el) => el.status === "IN_PROGRESS",
             );
-            const inTestCards = response.filter(
-                (el) => el.status === "IN_TEST",
-            );
-            const inCompletedCards = response.filter(
+            this.inTestCards = response.filter((el) => el.status === "IN_TEST");
+            this.inCompletedCards = response.filter(
                 (el) => el.status === "IN_COMPLETED",
             );
-            this.items = [
-                {
-                    name: "Index.toDo",
-                    items: toDoCards,
-                    id: "dropzone1",
-                    status: "TO_DO",
-                },
-                {
-                    name: "Index.inProgress",
-                    items: inProgressCards,
-                    id: "dropzone2",
-                    status: "IN_PROGRESS",
-                },
-                {
-                    name: "Index.inTest",
-                    items: inTestCards,
-                    id: "dropzone3",
-                    status: "IN_TEST",
-                },
-                {
-                    name: "Index.inCompleted",
-                    items: inCompletedCards,
-                    id: "dropzone4",
-                    status: "IN_COMPLETED",
-                },
-            ];
+            // this.items = [
+            //     {
+            //         name: "Index.toDo",
+            //         items: toDoCards,
+            //         id: "dropzone1",
+            //         status: "TO_DO",
+            //     },
+            //     {
+            //         name: "Index.inProgress",
+            //         items: inProgressCards,
+            //         id: "dropzone2",
+            //         status: "IN_PROGRESS",
+            //     },
+            //     {
+            //         name: "Index.inTest",
+            //         items: inTestCards,
+            //         id: "dropzone3",
+            //         status: "IN_TEST",
+            //     },
+            //     {
+            //         name: "Index.inCompleted",
+            //         items: inCompletedCards,
+            //         id: "dropzone4",
+            //         status: "IN_COMPLETED",
+            //     },
+            // ];
         },
         async createCard(data: any) {
             const res = await (
@@ -92,7 +98,6 @@ export const useToDoListStore = defineStore("toDoList", {
                     },
                 })
             ).json();
-            debugger;
         },
         async changeCard(data: Card, key: string) {
             const res: { status: "success" | "error" } = await (

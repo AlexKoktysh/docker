@@ -57,6 +57,10 @@ const props = defineProps({
 
 const toDoStore = useToDoListStore();
 
+watch(toDoStore, (val) => {
+    console.log("value", val.toDoCards);
+});
+
 const isOpen = ref(false);
 
 const addCard = () => {
