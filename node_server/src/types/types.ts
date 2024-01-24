@@ -1,15 +1,5 @@
-export type CardStatusType =
-    | "TO_DO"
-    | "IN_PROGRESS"
-    | "IN_TEST"
-    | "IN_COMPLETED";
+import { Card } from "../entity/Card";
 
-export type Card = {
-    _id?: string;
-    title?: string;
-    description?: string;
-    status?: CardStatusType;
-};
 export type ListItems = {
     TO_DO: {
         name: "Index.toDo";

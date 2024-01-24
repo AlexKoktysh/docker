@@ -1,92 +1,45 @@
-import type { Card, ToDoListItems } from "~/types";
+import type { Card, ListItems } from "~/types";
 
 type RootState = {
-    items: ToDoListItems;
+    listItems: ListItems;
     dragElement?: Card;
-    leavingZone?: string;
     apiBaseUrl: string;
-    toDoCards: Card[];
-    inProgressCards: Card[];
-    inTestCards: Card[];
-    inCompletedCards: Card[];
 };
 
 export const useToDoListStore = defineStore("toDoList", {
     state: () =>
         ({
-            items: [
-                {
+            listItems: {
+                TO_DO: {
                     name: "Index.toDo",
                     items: [],
                     id: "dropzone1",
-                    satus: "TO_DO",
                 },
-                {
+                IN_PROGRESS: {
                     name: "Index.inProgress",
                     items: [],
                     id: "dropzone2",
-                    status: "IN_PROGRESS",
                 },
-                {
+                IN_TEST: {
                     name: "Index.inTest",
                     items: [],
                     id: "dropzone3",
-                    status: "IN_TEST",
                 },
-                {
+                IN_COMPLETED: {
                     name: "Index.inCompleted",
                     items: [],
                     id: "dropzone4",
-                    status: "IN_COMPLETED",
                 },
-            ],
+            },
             dragElement: undefined,
-            leavingZone: undefined,
             apiBaseUrl: useRuntimeConfig().public.apiBase,
-            toDoCards: [],
-            inProgressCards: [],
-            inTestCards: [],
-            inCompletedCards: [],
         }) as RootState,
     actions: {
         async getCards() {
-            const response: Card[] = await (
+            const response: ListItems = await (
                 await fetch(`${this.apiBaseUrl}/cards`)
             ).json();
-            this.toDoCards = response.filter((el) => el.status === "TO_DO");
-            this.inProgressCards = response.filter(
-                (el) => el.status === "IN_PROGRESS",
-            );
-            this.inTestCards = response.filter((el) => el.status === "IN_TEST");
-            this.inCompletedCards = response.filter(
-                (el) => el.status === "IN_COMPLETED",
-            );
-            // this.items = [
-            //     {
-            //         name: "Index.toDo",
-            //         items: toDoCards,
-            //         id: "dropzone1",
-            //         status: "TO_DO",
-            //     },
-            //     {
-            //         name: "Index.inProgress",
-            //         items: inProgressCards,
-            //         id: "dropzone2",
-            //         status: "IN_PROGRESS",
-            //     },
-            //     {
-            //         name: "Index.inTest",
-            //         items: inTestCards,
-            //         id: "dropzone3",
-            //         status: "IN_TEST",
-            //     },
-            //     {
-            //         name: "Index.inCompleted",
-            //         items: inCompletedCards,
-            //         id: "dropzone4",
-            //         status: "IN_COMPLETED",
-            //     },
-            // ];
+            this.listItems = response;
         },
         async createCard(data: any) {
             const res = await (
@@ -99,7 +52,10 @@ export const useToDoListStore = defineStore("toDoList", {
                 })
             ).json();
         },
-        async changeCard(data: Card, key: string) {
+        async changeCard(
+            data: Card,
+            key: "TO_DO" | "IN_PROGRESS" | "IN_TEST" | "IN_COMPLETED",
+        ) {
             const res: { status: "success" | "error" } = await (
                 await fetch(
                     `${this.apiBaseUrl}/cards/${this.dragElement?._id}`,
@@ -119,29 +75,46 @@ export const useToDoListStore = defineStore("toDoList", {
             }
             this.setDragElement();
         },
-        setDragElement(item?: Card, parentId?: string) {
+        setDragElement(item?: Card) {
             this.dragElement = item;
-            this.setLeavingZone(parentId);
         },
-        setLeavingZone(id?: string) {
-            this.leavingZone = id;
-        },
-        changeListItems(id: string) {
-            this.items = this.items.map((el) => {
-                let items = el.items;
-                if (el.id === id) {
-                    items = [...el.items, this.dragElement as Card];
-                }
-                if (el.id === this.leavingZone) {
-                    items = el.items.filter(
-                        (e) => e._id !== this.dragElement?._id,
-                    );
-                }
-                return {
-                    ...el,
-                    items,
-                };
-            });
+        changeListItems(
+            id: "TO_DO" | "IN_PROGRESS" | "IN_TEST" | "IN_COMPLETED",
+        ) {
+            const newDeletedItems = this.listItems[
+                this.dragElement?.status as
+                    | "TO_DO"
+                    | "IN_PROGRESS"
+                    | "IN_TEST"
+                    | "IN_COMPLETED"
+            ].items.filter((el) => el._id !== this.dragElement?._id);
+            this.listItems = {
+                ...this.listItems,
+                [id]: {
+                    ...this.listItems[id],
+                    items: [
+                        ...this.listItems[id].items,
+                        {
+                            ...this.dragElement,
+                            status: id,
+                        },
+                    ],
+                },
+                [this.dragElement?.status as
+                    | "TO_DO"
+                    | "IN_PROGRESS"
+                    | "IN_TEST"
+                    | "IN_COMPLETED"]: {
+                    ...this.listItems[
+                        this.dragElement?.status as
+                            | "TO_DO"
+                            | "IN_PROGRESS"
+                            | "IN_TEST"
+                            | "IN_COMPLETED"
+                    ],
+                    items: newDeletedItems,
+                },
+            };
         },
     },
 });

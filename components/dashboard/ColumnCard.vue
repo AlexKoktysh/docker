@@ -4,7 +4,7 @@
         :id="id"
         @dragenter.prevent
         @dragover.prevent
-        @drop="onDrop(id as string)"
+        @drop="onDrop(status)"
     >
         <UCard class="bg-slate-200 dark:bg-slate-600">
             <template #header>{{ header }}</template>
@@ -14,7 +14,7 @@
                     v-for="element in items"
                     :key="id"
                     draggable="true"
-                    @dragstart="startDrag(id as string, element?._id as string)"
+                    @dragstart="startDrag(element?._id)"
                 >
                     {{ element.title }}
                 </div>
@@ -57,23 +57,21 @@ const props = defineProps({
 
 const toDoStore = useToDoListStore();
 
-watch(toDoStore, (val) => {
-    console.log("value", val.toDoCards);
-});
-
 const isOpen = ref(false);
 
 const addCard = () => {
     isOpen.value = true;
 };
 
-const onDrop = (key: string) => {
-    const status = setStatus(key);
-    toDoStore.changeCard({ status }, key);
+const onDrop = (key?: string) => {
+    if (key) {
+        const status = setStatus(key);
+        toDoStore.changeCard({ status }, key);
+    }
 };
-const startDrag = (parentId: string, elementId: string) => {
+const startDrag = (elementId?: string) => {
     const item = props.items?.find((el) => el._id === elementId);
-    toDoStore.setDragElement(item, parentId);
+    toDoStore.setDragElement(item);
 };
 
 const setStatus = (key: string) => {

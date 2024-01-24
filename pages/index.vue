@@ -1,12 +1,12 @@
 <template>
     <div class="flex h-full overflow-auto">
         <DashboardColumnCard
-            v-for="el in toDoStore.items"
+            v-for="(el, key) in toDoStore.listItems"
             :key="el.name"
             :header="$t(el.name)"
             :items="el.items"
             :id="el.id"
-            :status="el.status"
+            :status="key"
         />
     </div>
 </template>
