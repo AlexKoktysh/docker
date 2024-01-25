@@ -4,20 +4,23 @@
         :id="id"
         @dragenter.prevent
         @dragover.prevent
-        @drop="onDrop(status)"
+        @drop="onDrop(status as CardStatusType)"
     >
         <UCard class="bg-slate-200 dark:bg-slate-600">
             <template #header>{{ header }}</template>
             <div class="body overflow-y-auto">
-                <div
-                    class="h-14 flex justify-center items-center border-2 rounded-lg border-cyan-950 my-5"
-                    v-for="element in items"
-                    :key="id"
-                    draggable="true"
-                    @dragstart="startDrag(element?._id)"
-                >
-                    {{ element.title }}
-                </div>
+                <NuxtLink :to="`/cards/${activeCard}`">
+                    <div
+                        class="h-14 flex justify-center items-center border-2 rounded-lg border-cyan-950 my-5"
+                        v-for="element in items"
+                        :key="id"
+                        draggable="true"
+                        @dragstart="startDrag(element?._id)"
+                        @click="() => (activeCard = element._id)"
+                    >
+                        {{ element.title }}
+                    </div>
+                </NuxtLink>
             </div>
             <template #footer>
                 <div
@@ -41,7 +44,7 @@
 </template>
 
 <script setup lang="ts">
-import { type Card } from "../../types";
+import { type Card, type CardStatusType } from "../../types";
 import { useToDoListStore } from "../../store/ToDoListStore";
 
 const props = defineProps({
@@ -58,35 +61,20 @@ const props = defineProps({
 const toDoStore = useToDoListStore();
 
 const isOpen = ref(false);
+const activeCard = ref();
 
 const addCard = () => {
     isOpen.value = true;
 };
 
-const onDrop = (key?: string) => {
+const onDrop = (key?: CardStatusType) => {
     if (key) {
-        const status = setStatus(key);
-        toDoStore.changeCard({ status }, key);
+        toDoStore.changeCardsList({ status: key }, key);
     }
 };
 const startDrag = (elementId?: string) => {
     const item = props.items?.find((el) => el._id === elementId);
     toDoStore.setDragElement(item);
-};
-
-const setStatus = (key: string) => {
-    switch (key) {
-        case "dropzone1":
-            return "TO_DO";
-        case "dropzone2":
-            return "IN_PROGRESS";
-        case "dropzone3":
-            return "IN_TEST";
-        case "dropzone4":
-            return "IN_COMPLETED";
-        default:
-            return "TO_DO";
-    }
 };
 </script>
 

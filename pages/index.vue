@@ -16,7 +16,5 @@ import { useToDoListStore } from "../store/ToDoListStore";
 
 const toDoStore = useToDoListStore();
 
-onMounted(() => {
-    toDoStore.getCards();
-});
+await toDoStore.getCards();
 </script>

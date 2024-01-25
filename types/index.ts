@@ -4,6 +4,8 @@ export type CardStatusType =
     | "IN_TEST"
     | "IN_COMPLETED";
 
+export type MethodAPI = "GET" | "POST" | "PATCH" | "DELETE";
+
 export type Card = {
     _id?: string;
     title?: string;

@@ -1,9 +1,10 @@
-import type { Card, ListItems } from "~/types";
+import { useBaseFetch } from "~/composable/useBaseFetch";
+import type { Card, ListItems, CardStatusType } from "~/types";
 
 type RootState = {
     listItems: ListItems;
     dragElement?: Card;
-    apiBaseUrl: string;
+    activeCard?: Card;
 };
 
 export const useToDoListStore = defineStore("toDoList", {
@@ -32,43 +33,51 @@ export const useToDoListStore = defineStore("toDoList", {
                 },
             },
             dragElement: undefined,
-            apiBaseUrl: useRuntimeConfig().public.apiBase,
+            activeCard: undefined,
         }) as RootState,
     actions: {
         async getCards() {
-            const response: ListItems = await (
-                await fetch(`${this.apiBaseUrl}/cards`)
-            ).json();
-            this.listItems = response;
+            const data = await useBaseFetch("/cards");
+            this.listItems = data as ListItems;
         },
-        async createCard(data: any) {
-            const res = await (
-                await fetch(`${this.apiBaseUrl}/cards`, {
-                    method: "POST",
-                    body: JSON.stringify(data),
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                })
-            ).json();
+        async getCardById(id: string) {
+            const data = (await useBaseFetch(`/cards/${id}`)) as Card;
+            this.activeCard = data;
         },
-        async changeCard(
-            data: Card,
-            key: "TO_DO" | "IN_PROGRESS" | "IN_TEST" | "IN_COMPLETED",
-        ) {
-            const res: { status: "success" | "error" } = await (
-                await fetch(
-                    `${this.apiBaseUrl}/cards/${this.dragElement?._id}`,
-                    {
-                        method: "PATCH",
-                        body: JSON.stringify(data),
-                        headers: {
-                            "Content-Type": "application/json",
+        async createCard(params: any) {
+            const data = await useBaseFetch(`/cards`, {
+                method: "POST",
+                body: JSON.stringify(params),
+            });
+            if (data) {
+                const card = data as Card;
+                const status = card.status;
+                if (status)
+                    this.listItems = {
+                        ...this.listItems,
+                        [status]: {
+                            ...this.listItems[status],
+                            items: [...this.listItems[status].items, data],
                         },
-                    },
-                )
-            ).json();
-            if (res.status === "success") {
+                    };
+            }
+        },
+        async changeCard(params: Card) {
+            const data = await useBaseFetch(`/cards/${this.activeCard?._id}`, {
+                method: "PATCH",
+                body: JSON.stringify(params),
+            });
+            debugger;
+        },
+        async changeCardsList(params: Card, key: CardStatusType) {
+            const data = (await useBaseFetch(
+                `/cards/${this.dragElement?._id}`,
+                {
+                    method: "PATCH",
+                    body: JSON.stringify(params),
+                },
+            )) as { status: string };
+            if (data.status === "success") {
                 this.changeListItems(key);
                 this.setDragElement();
                 return;
@@ -78,15 +87,10 @@ export const useToDoListStore = defineStore("toDoList", {
         setDragElement(item?: Card) {
             this.dragElement = item;
         },
-        changeListItems(
-            id: "TO_DO" | "IN_PROGRESS" | "IN_TEST" | "IN_COMPLETED",
-        ) {
+        changeListItems(id: CardStatusType) {
+            if (!this.dragElement?.status) return;
             const newDeletedItems = this.listItems[
-                this.dragElement?.status as
-                    | "TO_DO"
-                    | "IN_PROGRESS"
-                    | "IN_TEST"
-                    | "IN_COMPLETED"
+                this.dragElement.status
             ].items.filter((el) => el._id !== this.dragElement?._id);
             this.listItems = {
                 ...this.listItems,
@@ -100,18 +104,8 @@ export const useToDoListStore = defineStore("toDoList", {
                         },
                     ],
                 },
-                [this.dragElement?.status as
-                    | "TO_DO"
-                    | "IN_PROGRESS"
-                    | "IN_TEST"
-                    | "IN_COMPLETED"]: {
-                    ...this.listItems[
-                        this.dragElement?.status as
-                            | "TO_DO"
-                            | "IN_PROGRESS"
-                            | "IN_TEST"
-                            | "IN_COMPLETED"
-                    ],
+                [this.dragElement?.status]: {
+                    ...this.listItems[this.dragElement.status],
                     items: newDeletedItems,
                 },
             };

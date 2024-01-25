@@ -70,7 +70,7 @@ export const getCardById = async (
 };
 
 export const updateCard = async (
-    req: Request<{ id: string }, {}, Card>,
+    req: Request<{ id: string | FindOneOptions<Card> }, {}, Card>,
     res: Response,
 ) => {
     try {
@@ -78,6 +78,10 @@ export const updateCard = async (
             req.params.id as string,
             req.body,
         );
+        const card = await Repository.findOne(
+            req.params.id as FindOneOptions<Card>,
+        );
+        console.log("card", card);
         res.send(updatedCard ? { status: "success" } : { status: "error" });
     } catch (error) {
         console.log("Error updateCard controller", error);
