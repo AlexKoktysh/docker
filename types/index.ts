@@ -10,7 +10,7 @@ export type Card = {
     _id?: string;
     title?: string;
     description?: string;
-    status?: CardStatusType;
+    status: CardStatusType;
 };
 export type ListItems = {
     TO_DO: {

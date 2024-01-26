@@ -63,26 +63,32 @@ export const useToDoListStore = defineStore("toDoList", {
             }
         },
         async changeCard(params: Card) {
-            const data = await useBaseFetch(`/cards/${this.activeCard?._id}`, {
+            const id = params.status
+                ? this.dragElement?._id
+                : this.activeCard?._id;
+            const data = (await useBaseFetch(`/cards/${id}`, {
                 method: "PATCH",
                 body: JSON.stringify(params),
-            });
-            debugger;
+            })) as Card;
+            if (params.status) return this.changeCardsList(params.status);
+            if (data) this.changeOneCard(data);
         },
-        async changeCardsList(params: Card, key: CardStatusType) {
-            const data = (await useBaseFetch(
-                `/cards/${this.dragElement?._id}`,
-                {
-                    method: "PATCH",
-                    body: JSON.stringify(params),
-                },
-            )) as { status: string };
-            if (data.status === "success") {
-                this.changeListItems(key);
-                this.setDragElement();
-                return;
-            }
+        changeCardsList(key: CardStatusType) {
+            this.changeListItems(key);
             this.setDragElement();
+        },
+        changeOneCard(data: Card) {
+            const newItems = this.listItems[data.status].items.map((el) => {
+                if (el._id === data._id) return data;
+                return el;
+            });
+            this.listItems = {
+                ...this.listItems,
+                [data.status]: {
+                    ...this.listItems[data.status],
+                    items: newItems,
+                },
+            };
         },
         setDragElement(item?: Card) {
             this.dragElement = item;

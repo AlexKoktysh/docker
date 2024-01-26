@@ -4,7 +4,7 @@
         :id="id"
         @dragenter.prevent
         @dragover.prevent
-        @drop="onDrop(status as CardStatusType)"
+        @drop="onDrop(status)"
     >
         <UCard class="bg-slate-200 dark:bg-slate-600">
             <template #header>{{ header }}</template>
@@ -13,7 +13,7 @@
                     <div
                         class="h-14 flex justify-center items-center border-2 rounded-lg border-cyan-950 my-5"
                         v-for="element in items"
-                        :key="id"
+                        :key="element._id"
                         draggable="true"
                         @dragstart="startDrag(element?._id)"
                         @click="() => (activeCard = element._id)"
@@ -67,10 +67,9 @@ const addCard = () => {
     isOpen.value = true;
 };
 
-const onDrop = (key?: CardStatusType) => {
-    if (key) {
-        toDoStore.changeCardsList({ status: key }, key);
-    }
+const onDrop = (key?: string) => {
+    const status = key as CardStatusType;
+    toDoStore.changeCard({ status });
 };
 const startDrag = (elementId?: string) => {
     const item = props.items?.find((el) => el._id === elementId);

@@ -41,7 +41,7 @@ const state = reactive({
 const onSubmit = async (event: any) => {
     toDoStore.createCard({
         ...event.data,
-        status: event.data.status ?? event.data.status.value,
+        status: event.data.status.value ?? event.data.status,
     });
     emit("close");
 };

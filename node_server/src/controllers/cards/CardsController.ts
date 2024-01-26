@@ -12,7 +12,7 @@ export const getAllCards = async (req: Request, res: Response) => {
         const allCards = await Repository.find();
         const response = allCards.reduce(
             (acc: ListItems, el) => {
-                acc[el.status].items.push(el);
+                acc[el.status]?.items?.push(el);
                 return acc;
             },
             {
@@ -40,7 +40,7 @@ export const getAllCards = async (req: Request, res: Response) => {
         );
         res.send(response);
     } catch (error) {
-        console.log("Error getUsers controller", error);
+        console.log("Error getAllCards controller", error);
     }
 };
 
@@ -74,15 +74,11 @@ export const updateCard = async (
     res: Response,
 ) => {
     try {
-        const updatedCard = await Repository.update(
-            req.params.id as string,
-            req.body,
-        );
+        await Repository.update(req.params.id as string, req.body);
         const card = await Repository.findOne(
             req.params.id as FindOneOptions<Card>,
         );
-        console.log("card", card);
-        res.send(updatedCard ? { status: "success" } : { status: "error" });
+        res.send(card);
     } catch (error) {
         console.log("Error updateCard controller", error);
     }
