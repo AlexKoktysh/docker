@@ -1,78 +1,120 @@
-import type { ToDoListItem, ToDoListItems } from "~/types";
+import { useBaseFetch } from "~/composable/useBaseFetch";
+import type { Card, ListItems, CardStatusType } from "~/types";
 
 type RootState = {
-    items: ToDoListItems;
-    dragElement?: ToDoListItem;
-    leavingZone?: string;
+    listItems: ListItems;
+    dragElement?: Card;
+    activeCard?: Card;
 };
 
 export const useToDoListStore = defineStore("toDoList", {
     state: () =>
         ({
-            items: [
-                {
+            listItems: {
+                TO_DO: {
                     name: "Index.toDo",
-                    items: [
-                        { id: 1, title: "toDo 1" },
-                        { id: 2, title: "toDo 2" },
-                        { id: 3, title: "toDo 3" },
-                    ],
+                    items: [],
                     id: "dropzone1",
                 },
-                {
+                IN_PROGRESS: {
                     name: "Index.inProgress",
-                    items: [
-                        { id: 4, title: "inProgress 1" },
-                        { id: 5, title: "inProgress 2" },
-                        { id: 6, title: "inProgress 3" },
-                    ],
+                    items: [],
                     id: "dropzone2",
                 },
-                {
+                IN_TEST: {
                     name: "Index.inTest",
-                    items: [
-                        { id: 7, title: "inTest 1" },
-                        { id: 8, title: "inTest 2" },
-                        { id: 9, title: "inTest 3" },
-                    ],
+                    items: [],
                     id: "dropzone3",
                 },
-                {
+                IN_COMPLETED: {
                     name: "Index.inCompleted",
-                    items: [
-                        { id: 10, title: "inCompleted 1" },
-                        { id: 11, title: "inCompleted 2" },
-                        { id: 12, title: "inCompleted 3" },
-                    ],
+                    items: [],
                     id: "dropzone4",
                 },
-            ],
+            },
             dragElement: undefined,
-            leavingZone: undefined,
+            activeCard: undefined,
         }) as RootState,
     actions: {
-        setDragElement(item?: ToDoListItem) {
+        async getCards() {
+            const data = await useBaseFetch("/cards");
+            this.listItems = data as ListItems;
+        },
+        async getCardById(id: string) {
+            const data = (await useBaseFetch(`/cards/${id}`)) as Card;
+            this.activeCard = data;
+        },
+        async createCard(params: any) {
+            const data = await useBaseFetch(`/cards`, {
+                method: "POST",
+                body: JSON.stringify(params),
+            });
+            if (data) {
+                const card = data as Card;
+                const status = card.status;
+                if (status)
+                    this.listItems = {
+                        ...this.listItems,
+                        [status]: {
+                            ...this.listItems[status],
+                            items: [...this.listItems[status].items, data],
+                        },
+                    };
+            }
+        },
+        async changeCard(params: Card) {
+            const id = params.status
+                ? this.dragElement?._id
+                : this.activeCard?._id;
+            const data = (await useBaseFetch(`/cards/${id}`, {
+                method: "PATCH",
+                body: JSON.stringify(params),
+            })) as Card;
+            if (params.status) return this.changeCardsList(params.status);
+            if (data) this.changeOneCard(data);
+        },
+        changeCardsList(key: CardStatusType) {
+            this.changeListItems(key);
+            this.setDragElement();
+        },
+        changeOneCard(data: Card) {
+            const newItems = this.listItems[data.status].items.map((el) => {
+                if (el._id === data._id) return data;
+                return el;
+            });
+            this.listItems = {
+                ...this.listItems,
+                [data.status]: {
+                    ...this.listItems[data.status],
+                    items: newItems,
+                },
+            };
+        },
+        setDragElement(item?: Card) {
             this.dragElement = item;
         },
-        setLeavingZone(id?: string) {
-            this.leavingZone = id;
-        },
-        changeListItems(id: string) {
-            this.items = this.items.map((el) => {
-                let items = el.items;
-                if (el.id === id) {
-                    items = [...el.items, this.dragElement as ToDoListItem];
-                }
-                if (el.id === this.leavingZone) {
-                    items = el.items.filter(
-                        (e) => e.id !== this.dragElement?.id,
-                    );
-                }
-                return {
-                    ...el,
-                    items,
-                };
-            });
+        changeListItems(id: CardStatusType) {
+            if (!this.dragElement?.status) return;
+            const newDeletedItems = this.listItems[
+                this.dragElement.status
+            ].items.filter((el) => el._id !== this.dragElement?._id);
+            this.listItems = {
+                ...this.listItems,
+                [id]: {
+                    ...this.listItems[id],
+                    items: [
+                        ...this.listItems[id].items,
+                        {
+                            ...this.dragElement,
+                            status: id,
+                        },
+                    ],
+                },
+                [this.dragElement?.status]: {
+                    ...this.listItems[this.dragElement.status],
+                    items: newDeletedItems,
+                },
+            };
         },
     },
 });

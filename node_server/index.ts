@@ -1,4 +1,5 @@
 import express, { Express } from "express";
+import cors from "cors";
 import { json, urlencoded } from "body-parser";
 import dotenv from "dotenv";
 
@@ -12,6 +13,7 @@ const { PORT } = process.env;
 const app: Express = express();
 const port = PORT ?? 5000;
 
+app.use(cors());
 app.use(urlencoded({ extended: true }));
 app.use(json());
 

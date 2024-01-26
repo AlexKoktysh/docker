@@ -14,4 +14,9 @@ export default defineNuxtConfig({
     ui: {
         global: true,
     },
+    runtimeConfig: {
+        public: {
+            baseURL: process.env.NUXT_PUBLIC_BASE_URL,
+        },
+    },
 });
