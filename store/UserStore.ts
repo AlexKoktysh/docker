@@ -10,7 +10,7 @@ export const useUserStore = defineStore("user", {
     state: () =>
         ({
             user: null,
-            authenticated: false,
+            authenticated: true,
         }) as RootState,
     actions: {
         async signUp(body: { email: string; password: string }) {
@@ -26,6 +26,9 @@ export const useUserStore = defineStore("user", {
                 body: JSON.stringify(body),
             });
             debugger;
+        },
+        setAuth() {
+            this.authenticated = false;
         },
     },
 });

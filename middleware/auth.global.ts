@@ -1,3 +1,9 @@
+import { useUserStore } from "../store/UserStore";
+
 export default defineNuxtRouteMiddleware((to, from) => {
-    console.log("From auth middleware");
+    const { authenticated } = useUserStore();
+    if (!authenticated && to?.name !== "signin") {
+        abortNavigation();
+        return navigateTo("/signin");
+    }
 });

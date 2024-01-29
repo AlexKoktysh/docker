@@ -1,38 +1,24 @@
 import type { UseFetchOptions } from "#app";
+import { defu } from "defu";
+import { useUserStore } from "../store/UserStore";
 
-// export const useBaseFetch = (url: string, options = {}) => {
-//     const opt = {
-//         ...options,
-//         async onRequest({ request, options }) {
-//             options.headers = { credentials: "include" };
-//         },
-//         async onResponseError({ request, response, options }) {
-//             debugger;
-//         },
-//     };
-//     return $fetch(`${useRuntimeConfig().public.baseURL}${url}`, opt);
-// };
-
-export function useCustomFetch<T>(
-    url: string,
-    options: UseFetchOptions<T> = {},
-) {
-    const userAuth = useCookie("token");
-    const config = useRuntimeConfig();
-
+export function useBaseFetch<T>(url: string, options = {}) {
+    const { setAuth } = useUserStore();
     const defaults: UseFetchOptions<T> = {
         baseURL: useRuntimeConfig().public.baseURL,
         key: url,
+        headers: { credentials: "include" },
         onResponse(_ctx) {
-            // _ctx.response._data = new myBusinessResponse(_ctx.response._data)
+            return _ctx.response._data;
         },
+
         onResponseError(_ctx) {
-            // throw new myBusinessError()
+            if (_ctx.response.status === 401) {
+                setAuth();
+            }
         },
     };
-
-    // for nice deep defaults, please use unjs/defu
     const params = defu(options, defaults);
 
-    return useFetch(url, params);
+    return $fetch(url, params);
 }
