@@ -116,5 +116,12 @@ export const useToDoListStore = defineStore("toDoList", {
                 },
             };
         },
+        async signUp(body: { email: string; password: string }) {
+            const data = await useBaseFetch(`/auth/signup`, {
+                method: "POST",
+                body: JSON.stringify(body),
+            });
+            debugger;
+        },
     },
 });

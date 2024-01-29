@@ -1,10 +1,9 @@
 import { Router } from "express";
 import { UsersController } from "../../controllers";
 
-const { getUsers, createUser } = UsersController;
+const { signIn, signUp, getUsers } = UsersController;
 const router = Router();
 
-// router.get("/", getUsers);
-router.post("/", createUser);
+router.get("/", getUsers);
 
 export const UsersRouter = router;

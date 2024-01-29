@@ -1,13 +1,25 @@
-import { Entity, PrimaryColumn, Column } from "typeorm";
+import { Entity, Column, ObjectIdColumn, ObjectId } from "typeorm";
 
 @Entity()
 export class User {
-    @PrimaryColumn("uuid")
-    id: number;
+    @ObjectIdColumn()
+    _id: ObjectId;
 
-    @Column("string")
+    @Column({
+        type: String,
+        default: "",
+    })
     firstName: string;
 
-    @Column("string")
+    @Column({
+        type: String,
+        default: "",
+    })
     lastName: string;
+
+    @Column("string")
+    email: string;
+
+    @Column("string")
+    password: string;
 }

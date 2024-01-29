@@ -34,3 +34,9 @@ export type ListItems = {
         items: Card[];
     };
 };
+
+export type User = {
+    firstName?: string;
+    lastName?: string;
+    email: string;
+};
