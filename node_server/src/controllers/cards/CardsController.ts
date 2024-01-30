@@ -4,8 +4,21 @@ import { AppDataSource } from "../../data-source";
 import { Card } from "../../entity/Card";
 import { CardStatus } from "../../types/enums";
 import { ListItems } from "../../types/types";
+import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+import { User } from "../../entity/User";
+
+export class JwtPayloadDto {
+    readonly id: string;
+    readonly email: string;
+}
+
+dotenv.config();
+
+const { SECRET_KEY_ACCESS } = process.env;
 
 const Repository = AppDataSource.getRepository(Card);
+const UserRepository = AppDataSource.getRepository(User);
 
 export const getAllCards = async (req: Request, res: Response) => {
     try {
@@ -46,6 +59,15 @@ export const getAllCards = async (req: Request, res: Response) => {
 
 export const createCard = async (req: Request<{}, {}, Card>, res: Response) => {
     try {
+        const token = req.cookies["access-token"];
+        const userPayload = jwt.verify(
+            token,
+            `${SECRET_KEY_ACCESS}`,
+        ) as JwtPayloadDto;
+        const user = await UserRepository.findOne({
+            where: { email: userPayload?.email ?? "" },
+        });
+        console.log("user", user);
         const newCard = Repository.create({
             ...req.body,
             status: req.body.status ?? CardStatus.TO_DO,

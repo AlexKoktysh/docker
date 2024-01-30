@@ -1,5 +1,5 @@
 import dotenv from "dotenv";
-import { genSalt, hash, compare } from "bcryptjs";
+import { genSalt, hash } from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 dotenv.config();

@@ -26,6 +26,7 @@
 
 <script setup lang="ts">
 import type { FormError, FormSubmitEvent } from "#ui/types";
+import { useUserStore } from "~/store/UserStore";
 
 const props = defineProps({
     isSignIn: Boolean,
@@ -35,7 +36,7 @@ const state = reactive({
     email: undefined,
     password: undefined,
 });
-const route = useRoute();
+const userStore = useUserStore();
 
 const validate = (state: any): FormError[] => {
     const errors = [];
@@ -45,6 +46,8 @@ const validate = (state: any): FormError[] => {
 };
 
 async function onSubmit(event: FormSubmitEvent<any>) {
-    console.log(event.data);
+    !props.isSignIn
+        ? await userStore.signUp(event.data)
+        : await userStore.signIn(event.data);
 }
 </script>

@@ -8,16 +8,12 @@
 </template>
 
 <script setup>
-import { useToDoListStore } from "../../store/ToDoListStore";
+import { useToDoListStore } from "~/store/ToDoListStore";
 
 const toDoStore = useToDoListStore();
 const route = useRoute();
 
 await toDoStore.getCardById(route.params.id);
-await toDoStore.signUp({
-    email: "awot0058@gmail.com",
-    password: "123456789",
-});
 
 const title = ref(toDoStore.activeCard.title);
 const description = ref(toDoStore.activeCard.description);

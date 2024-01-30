@@ -18,4 +18,7 @@ export class Card {
         default: CardStatus.TO_DO,
     })
     status: CardStatus;
+
+    @Column("string")
+    assignUser: string;
 }

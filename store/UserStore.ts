@@ -14,21 +14,34 @@ export const useUserStore = defineStore("user", {
         }) as RootState,
     actions: {
         async signUp(body: { email: string; password: string }) {
-            const data = await useBaseFetch(`/auth/signup`, {
+            const data = (await useBaseFetch(`/auth/signup`, {
                 method: "POST",
-                body: JSON.stringify(body),
-            });
-            debugger;
+                body,
+                headers: { credentials: "include" },
+            })) as User;
+            if (data.email) {
+                this.user = data;
+                this.authenticated = true;
+            }
         },
         async signIn(body: { email: string; password: string }) {
-            const data = await useBaseFetch(`/auth/signin`, {
+            const data = (await useBaseFetch(`/auth/signin`, {
                 method: "POST",
-                body: JSON.stringify(body),
+                body,
+            })) as User;
+            if (data.email) {
+                this.user = data;
+                this.authenticated = true;
+            }
+        },
+        async signOut() {
+            const data = await useBaseFetch(`/auth/signout`, {
+                method: "POST",
             });
             debugger;
         },
-        setAuth() {
-            this.authenticated = false;
+        getAuth() {
+            return this.authenticated;
         },
     },
 });

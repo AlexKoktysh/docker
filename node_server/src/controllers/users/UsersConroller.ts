@@ -65,32 +65,14 @@ export const signIn = async (req: Request, res: Response) => {
         res.status(500).send({ error: "Sorry, try again" });
     }
 };
+export const signOut = async (req: Request, res: Response) => {
+    res.clearCookie("refresh-token");
+    res.clearCookie("access-token");
+    res.status(401).send({ message: "Successfully signed out" });
+};
 export const refreshToken = async (req: Request, res: Response) => {
     try {
     } catch (error) {
         console.log("Error refreshToken controller", error);
-    }
-};
-
-export const getUsers = async (req: Request, res: Response) => {
-    try {
-        const userRepository = AppDataSource.getRepository(User);
-        const allUsers = await userRepository.find();
-        res.send(allUsers);
-    } catch (error) {
-        console.log("Error getUsers controller", error);
-    }
-};
-
-export const createUser = async (req: Request, res: Response) => {
-    try {
-        // const user = new UserModel({
-        //     email: req.body.email,
-        //     password: req.body.password,
-        // });
-        // const newUser = await user.save();
-        // res.send(newUser);
-    } catch (error) {
-        console.log("Error createUser controller", error);
     }
 };
