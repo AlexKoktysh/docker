@@ -4,12 +4,19 @@ import { AppDataSource } from "../../data-source";
 import { Card } from "../../entity/Card";
 import { CardStatus } from "../../types/enums";
 import { ListItems } from "../../types/types";
+import dotenv from "dotenv";
+import { getRequestUser } from "../../helpers/getRequestUser";
+
+dotenv.config();
 
 const Repository = AppDataSource.getRepository(Card);
 
 export const getAllCards = async (req: Request, res: Response) => {
     try {
-        const allCards = await Repository.find();
+        const user = await getRequestUser(req);
+        const allCards = await Repository.find({
+            where: { assignedUser: user?._id },
+        });
         const response = allCards.reduce(
             (acc: ListItems, el) => {
                 acc[el.status]?.items?.push(el);
@@ -46,9 +53,11 @@ export const getAllCards = async (req: Request, res: Response) => {
 
 export const createCard = async (req: Request<{}, {}, Card>, res: Response) => {
     try {
+        const user = await getRequestUser(req);
         const newCard = Repository.create({
             ...req.body,
             status: req.body.status ?? CardStatus.TO_DO,
+            assignedUser: user?._id,
         });
         await Repository.save(newCard);
         res.send(newCard);

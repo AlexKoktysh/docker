@@ -14,4 +14,7 @@ export const AppDataSource = new DataSource({
     username: DB_USER,
     password: DB_PASSWORD,
     entities: [User, Card],
+    migrations: [
+        "../migrations/migrations/20240131095325-add-user-to-cards-table.ts",
+    ],
 });

@@ -38,6 +38,7 @@ export const useToDoListStore = defineStore("toDoList", {
     actions: {
         async getCards() {
             const data = await useBaseFetch("/cards");
+            debugger
             this.listItems = data as ListItems;
         },
         async getCardById(id: string) {
@@ -47,7 +48,7 @@ export const useToDoListStore = defineStore("toDoList", {
         async createCard(params: any) {
             const data = await useBaseFetch(`/cards`, {
                 method: "POST",
-                body: JSON.stringify(params),
+                body: params,
             });
             if (data) {
                 const card = data as Card;
@@ -68,7 +69,7 @@ export const useToDoListStore = defineStore("toDoList", {
                 : this.activeCard?._id;
             const data = (await useBaseFetch(`/cards/${id}`, {
                 method: "PATCH",
-                body: JSON.stringify(params),
+                body: params,
             })) as Card;
             if (params.status) return this.changeCardsList(params.status);
             if (data) this.changeOneCard(data);
