@@ -3,11 +3,7 @@ import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import { AppDataSource } from "../../data-source";
 import { User } from "../../entity/User";
-
-export class JwtPayloadDto {
-    readonly id: string;
-    readonly email: string;
-}
+import { JwtPayloadDto } from "../../types/types";
 
 dotenv.config();
 

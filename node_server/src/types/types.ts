@@ -22,3 +22,8 @@ export type ListItems = {
         items: Card[];
     };
 };
+
+export class JwtPayloadDto {
+    readonly id: string;
+    readonly email: string;
+}

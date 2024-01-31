@@ -38,6 +38,7 @@ export const useToDoListStore = defineStore("toDoList", {
     actions: {
         async getCards() {
             const data = await useBaseFetch("/cards");
+            debugger
             this.listItems = data as ListItems;
         },
         async getCardById(id: string) {

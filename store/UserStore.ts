@@ -35,10 +35,12 @@ export const useUserStore = defineStore("user", {
             }
         },
         async signOut() {
-            const data = await useBaseFetch(`/auth/signout`, {
+            await useBaseFetch(`/auth/signout`, {
                 method: "POST",
             });
-            debugger;
+        },
+        async refresh() {
+            await useBaseFetch(`/auth/refresh`);
         },
         getAuth() {
             return this.authenticated;

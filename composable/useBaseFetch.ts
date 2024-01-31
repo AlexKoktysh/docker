@@ -16,11 +16,19 @@ export function useBaseFetch<T>(url: string, options = {}) {
             return _ctx.response._data;
         },
 
-        onResponseError(_ctx) {
+        async onResponseError(_ctx) {
             if (_ctx.response.status === 401) {
-                store.$patch((state) => {
-                    state.authenticated = false;
-                });
+                await store
+                    .refresh()
+                    .then(async () => {
+                        const data = await $fetch(url, params);
+                        return data;
+                    })
+                    .catch(() => {
+                        store.$patch((state) => {
+                            state.authenticated = false;
+                        });
+                    });
             }
         },
     };

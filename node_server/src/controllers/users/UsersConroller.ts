@@ -4,6 +4,7 @@ import { User } from "../../entity/User";
 import { compare } from "bcryptjs";
 import ms from "ms";
 import { getTokens, hashPassword } from "../crypto/CryptoController";
+import { getRequestUser } from "../../helpers/getRequestUser";
 
 const Repository = AppDataSource.getRepository(User);
 
@@ -72,6 +73,21 @@ export const signOut = async (req: Request, res: Response) => {
 };
 export const refreshToken = async (req: Request, res: Response) => {
     try {
+        const user = await getRequestUser(req);
+        if (user?.email) {
+            const { accessToken, refreshToken } = getTokens(user.email);
+            res.cookie("access-token", accessToken, {
+                httpOnly: true,
+                path: "/",
+                expires: new Date(Date.now() + ms("24h")),
+            });
+            res.cookie("refresh-token", refreshToken, {
+                httpOnly: true,
+                path: "/",
+                expires: new Date(Date.now() + ms("3 days")),
+            });
+            res.send({ message: "Token successfully refreshed" });
+        }
     } catch (error) {
         console.log("Error refreshToken controller", error);
     }

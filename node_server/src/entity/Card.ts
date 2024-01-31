@@ -20,5 +20,5 @@ export class Card {
     status: CardStatus;
 
     @Column("string")
-    assignUser: string;
+    assignedUser: ObjectId;
 }
